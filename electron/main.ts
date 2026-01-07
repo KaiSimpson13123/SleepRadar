@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
 import Store from "electron-store";
 import { session } from "electron";
+import fs from "node:fs";
 
 type Settings = { cid: string };
 
@@ -81,8 +82,8 @@ function createWindow() {
     win.loadURL("http://127.0.0.1:5173");
     win.webContents.openDevTools({ mode: "detach" });
   } else {
-    const indexPath = path.join(__dirname, "../renderer/index.html");
-    console.log("Loading:", indexPath);
+    const indexPath = path.join(app.getAppPath(), "dist", "index.html");
+    console.log("PROD indexPath:", indexPath, "exists:", fs.existsSync(indexPath));
     win.loadFile(indexPath);
   }
 }

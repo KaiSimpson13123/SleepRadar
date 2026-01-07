@@ -44,13 +44,16 @@
     },
     "files": [
       "dist/**/*",
-      "dist-electron/**/*"
+      "dist-electron/**/*",
+      "dist-electron/**",
+      "dist/**",
+      "build/**"
     ],
     "asar": true,
     "win": {
       "target": [
         {
-          "target": "msi",
+          "target": "nsis",
           "arch": [
             "x64"
           ]
