@@ -1,0 +1,73 @@
+{
+  "name": "sleepradar",
+  "version": "1.0.0",
+  "main": "dist-electron/main.cjs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build && npm run build:electron",
+    "build:electron": "node node_modules/typescript/bin/tsc -p tsconfig.node.json && node scripts/rename-electron.cjs",
+    "dev": "concurrently -k \"npm run build:electron && vite\" \"wait-on http://127.0.0.1:5173 && electron ./dist-electron/main.cjs\"",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:msi": "npm run build && electron-builder --win msi"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.16",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.7",
+    "electron-builder": "^25.1.8",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.12",
+    "wait-on": "^8.0.4"
+  },
+  "dependencies": {
+    "@turf/turf": "^7.2.0",
+    "clsx": "^2.1.1",
+    "electron-store": "^8.2.0",
+    "leaflet": "^1.9.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-leaflet": "^4.2.1"
+  },
+  "build": {
+    "appId": "com.jetrix.sleepradar",
+    "productName": "SleepRadar",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "msi",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "msi": {
+      "oneClick": false,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SleepRadar",
+      "warningsAsErrors": false,
+      "additionalLightArgs": [
+        "-sval"
+      ]
+    }
+  }
+}

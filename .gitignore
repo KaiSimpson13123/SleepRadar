@@ -1,0 +1,88 @@
+# ========================
+# Node / JS
+# ========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ========================
+# Build outputs
+# ========================
+dist/
+dist-electron/
+release/
+build/*.exe
+build/*.msi
+build/*.zip
+
+# ========================
+# Electron builder
+# ========================
+builder-debug.yml
+builder-effective-config.yaml
+
+# ========================
+# Vite
+# ========================
+.vite/
+.vite-cache/
+
+# ========================
+# Environment variables
+# ========================
+.env
+.env.local
+.env.*.local
+
+# ========================
+# TypeScript
+# ========================
+*.tsbuildinfo
+
+# ========================
+# OS junk
+# ========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ========================
+# IDEs
+# ========================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ========================
+# Electron cache / temp
+# ========================
+.cache/
+.tmp/
+temp/
+out/
+
+# ========================
+# Coverage / test
+# ========================
+coverage/
+
+# ========================
+# Misc
+# ========================
+*.swp
+*.bak
+*.tmp
+
+# ========================
+# Optional: ignore local assets
+# ========================
+# Uncomment if you don't want to commit private assets
+# src/assets/alarm.mp3
+# build/icon.ico
