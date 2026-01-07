@@ -19,8 +19,6 @@ const isDev = !app.isPackaged;
 
 let win: BrowserWindow | null = null;
 
-
-
 function createWindow() {
   win = new BrowserWindow({
     width: 1180,
@@ -41,30 +39,32 @@ function createWindow() {
   });
 
   if (!app.isPackaged) {
-  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    const headers = details.responseHeaders ?? {};
-    const cspKey = Object.keys(headers).find((k) => k.toLowerCase() === "content-security-policy");
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      const headers = details.responseHeaders ?? {};
+      const cspKey = Object.keys(headers).find(
+        (k) => k.toLowerCase() === "content-security-policy"
+      );
 
-    const csp = cspKey ? String(headers[cspKey]?.[0] ?? "") : "";
+      const csp = cspKey ? String(headers[cspKey]?.[0] ?? "") : "";
 
-    // If there's already a CSP, expand connect-src to allow ws/wss for Vite
-    const next =
-      csp && csp.includes("connect-src")
-        ? csp.replace(/connect-src([^;]*);/i, (m, p1) => {
-            // ensure ws://127.0.0.1:5173 and ws: are allowed
-            if (/ws:/.test(m)) return m;
-            return `connect-src${p1} ws: wss: http: https:;`;
-          })
-        : "default-src 'self'; connect-src 'self' http: https: ws: wss:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-eval' 'unsafe-inline';";
+      // If there's already a CSP, expand connect-src to allow ws/wss for Vite
+      const next =
+        csp && csp.includes("connect-src")
+          ? csp.replace(/connect-src([^;]*);/i, (m, p1) => {
+              // ensure ws://127.0.0.1:5173 and ws: are allowed
+              if (/ws:/.test(m)) return m;
+              return `connect-src${p1} ws: wss: http: https:;`;
+            })
+          : "default-src 'self'; connect-src 'self' http: https: ws: wss:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-eval' 'unsafe-inline';";
 
-    callback({
-      responseHeaders: {
-        ...headers,
-        "Content-Security-Policy": [next],
-      },
+      callback({
+        responseHeaders: {
+          ...headers,
+          "Content-Security-Policy": [next],
+        },
+      });
     });
-  });
-}
+  }
 
   if (!app.isPackaged) {
     win.webContents.openDevTools({ mode: "detach" });
@@ -81,7 +81,7 @@ function createWindow() {
     win.loadURL("http://127.0.0.1:5173");
     win.webContents.openDevTools({ mode: "detach" });
   } else {
-    win.loadFile(path.join(process.cwd(), "dist/index.html"));
+    win.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 }
 
