@@ -6,7 +6,10 @@ export type FirMaps = {
 };
 
 function normToken(s: string) {
-  return String(s || "").trim().toUpperCase().replaceAll("-", "_");
+  return String(s || "")
+    .trim()
+    .toUpperCase()
+    .replaceAll("-", "_");
 }
 
 export async function fetchVatSpyDat(_signal?: AbortSignal): Promise<string> {
@@ -20,7 +23,6 @@ export async function fetchVatSpyDat(_signal?: AbortSignal): Promise<string> {
 export function parseFirMaps(dat: string): FirMaps {
   const boundaryIdByCallsign = new Map<string, string>();
   const boundaryIdByIcao = new Map<string, string>();
-  
 
   const lines = dat.split(/\r?\n/);
   let inFir = false;
@@ -36,12 +38,14 @@ export function parseFirMaps(dat: string): FirMaps {
     }
     if (!inFir) continue;
 
-    const parts = (line.includes("|") ? line.split("|") : line.split(",")).map((x) => x.trim());
+    const parts = (line.includes("|") ? line.split("|") : line.split(",")).map(
+      (x) => x.trim()
+    );
     if (parts.length < 4) continue;
 
-    const icao = normToken(parts[0]);      // e.g. MMEX
-    const callsign = normToken(parts[2]);  // e.g. MEX (sometimes)
-    const boundary = normToken(parts[3]);  // boundary id
+    const icao = normToken(parts[0]); // e.g. MMEX
+    const callsign = normToken(parts[2]); // e.g. MEX (sometimes)
+    const boundary = normToken(parts[3]); // boundary id
 
     const boundaryId = boundary || icao;
 
@@ -49,6 +53,22 @@ export function parseFirMaps(dat: string): FirMaps {
     if (callsign) boundaryIdByCallsign.set(callsign, boundaryId);
   }
 
+  console.log(
+    "callSign keys sample:",
+    Array.from(boundaryIdByCallsign.keys()).slice(0, 30)
+  );
+  console.log(
+    "callSign values sample:",
+    Array.from(boundaryIdByCallsign.values()).slice(0, 30)
+  );
+  console.log(
+    "icao keys sample:",
+    Array.from(boundaryIdByIcao.keys()).slice(0, 30)
+  );
+  console.log(
+    "icao values sample:",
+    Array.from(boundaryIdByIcao.values()).slice(0, 30)
+  );
+
   return { boundaryIdByCallsign, boundaryIdByIcao };
 }
-

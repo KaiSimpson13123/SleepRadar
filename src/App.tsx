@@ -201,6 +201,8 @@ export default function App() {
       const data = await fetchVatsimData(ac.signal);
       setLastUpdate(data.general.update_timestamp);
 
+      console.log("VATSIM keys:", Object.keys(data));
+
       const me = findPilotByCid(data, cid);
       setPilot(me);
 
@@ -253,20 +255,29 @@ export default function App() {
     }
   }
 
+  const mapsReady = !!firMaps;
+  const firToBoundaryReady = !!boundaryIdByFirIcao;
+
   // Start/stop polling based on mode
   useEffect(() => {
     stopPolling();
     setPilot(null);
     setZone(null);
 
-    if (mode === "active" && hasCid) {
+    if (
+      mode === "active" &&
+      hasCid &&
+      boundaries &&
+      mapsReady &&
+      firToBoundaryReady
+    ) {
       tick();
-      timerRef.current = window.setInterval(tick, 10000); // 10s
+      timerRef.current = window.setInterval(tick, 10000);
     }
 
     return () => stopPolling();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, cid, hasCid, boundaries]);
+  }, [mode, cid, hasCid, boundaries, mapsReady, firToBoundaryReady]);
 
   async function saveCid(next: string) {
     const clean = next.trim();
@@ -378,7 +389,7 @@ export default function App() {
         subtitle={alarmMsg?.subtitle || null}
         onAcknowledge={() => {
           // helps if autoplay was blocked; clicking modal will attempt play again
-          startAlarm(new URL("./assets/alarm.mp3", import.meta.url).toString());
+          startAlarm(new URL("./assets/alarm.wav", import.meta.url).toString());
         }}
         onDismiss={dismissAlarm}
       />

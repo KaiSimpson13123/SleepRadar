@@ -2,19 +2,25 @@ import { fetchMapData } from "./mapData";
 import { normId } from "./norm";
 
 export type FirBoundaryMaps = {
-  // FIR ICAO (e.g. MMEX) -> boundary polygon id (e.g. MMFR)
   boundaryIdByFirIcao: Map<string, string>;
 };
 
-/**
- * Downloads the VATSIM-provided FIR boundary mapping file (fir_boundaries.dat)
- * and builds FIR ICAO -> GeoJSON boundary id map.
- */
 export async function fetchFirBoundariesDat(): Promise<string> {
   const md = await fetchMapData();
   const api = window.SleepRadar;
   if (!api?.fetchText) throw new Error("SleepRadar.fetchText missing");
   return api.fetchText(md.fir_boundaries_dat_url);
+}
+
+function isNumericToken(s: string) {
+  if (!s) return false;
+  const n = Number(s);
+  return Number.isFinite(n);
+}
+
+function looksLikeBoundaryId(id: string) {
+  // Reject decimals like "108.831833" automatically by not allowing dots
+  return /^[A-Z0-9_]{2,20}$/.test(id);
 }
 
 export function parseFirBoundariesDat(txt: string): FirBoundaryMaps {
@@ -26,26 +32,33 @@ export function parseFirBoundariesDat(txt: string): FirBoundaryMaps {
     const line = raw.trim();
     if (!line || line.startsWith(";") || line.startsWith("#")) continue;
 
-    // tolerate both "|" and "," formats
     const parts = (line.includes("|") ? line.split("|") : line.split(","))
-      .map((p) => p.trim());
+      .map((p) => p.trim())
+      .filter(Boolean);
 
-    // Common formats include at least FIR + boundary id somewhere.
-    // We’ll try to pick sensible columns:
-    //
-    // Often: FIR_ICAO | Name | Boundary_ID
-    // Sometimes: FIR_ICAO | Boundary_ID | ...
-    //
     if (parts.length < 2) continue;
 
     const fir = normId(parts[0]);
+    if (!fir) continue;
 
-    // Choose the last token as boundary id (usually safest)
-    const boundary = normId(parts[parts.length - 1]);
+    // Find the first non-numeric "ID-like" token after FIR
+    let boundary: string | null = null;
 
-    if (fir && boundary) boundaryIdByFirIcao.set(fir, boundary);
+    for (let i = 1; i < parts.length; i++) {
+      const tRaw = parts[i];
+      const t = normId(tRaw);
+
+      if (!t) continue;
+      if (isNumericToken(tRaw)) continue;      // <- stops picking lon/lat
+      if (!looksLikeBoundaryId(t)) continue;   // <- stops weird strings
+      if (t === fir) continue;
+
+      boundary = t;
+      break;
+    }
+
+    if (boundary) boundaryIdByFirIcao.set(fir, boundary);
   }
 
   return { boundaryIdByFirIcao };
 }
-
